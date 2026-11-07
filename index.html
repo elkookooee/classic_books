@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Classics — Audiobook Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f7f4ee;--card:#fff;--ink:#1f1b16;--muted:#6f675c;--line:#e4ddd1;--accent:#b4232c;--pd:#2f6b3f;--pdbg:#e6f0e8;--cr:#8a5a12;--crbg:#f6ecd9}
+  @media (prefers-color-scheme:dark){:root{--bg:#16140f;--card:#201d17;--ink:#eee8dc;--muted:#a49b8c;--line:#353026;--accent:#ff5a5f;--pd:#8fd19e;--pdbg:#1e3324;--cr:#e8b866;--crbg:#3a2d16}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
+  h1{font-family:Fraunces,Georgia,serif;font-size:32px;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 18px;max-width:70ch}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:2}
+  input[type=search],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+  input[type=search]{flex:1;min-width:200px}
+  .count{color:var(--muted);font-size:13px}
+  h2{font-family:Fraunces,Georgia,serif;font-size:19px;margin:26px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+  .row{display:grid;grid-template-columns:28px 34px 1fr auto;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:6px 0}
+  .row.done{opacity:.55}
+  .n{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;font-size:13px}
+  .t{font-weight:600}
+  .a{color:var(--muted);font-size:13px}
+  .tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;margin-left:6px;white-space:nowrap}
+  .tag.pd{color:var(--pd);background:var(--pdbg)}
+  .tag.cr{color:var(--cr);background:var(--crbg)}
+  .links{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .links a{font-size:13px;font-weight:500;text-decoration:none;padding:6px 10px;border-radius:7px;border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+  .links a.yt{background:var(--accent);border-color:var(--accent);color:#fff}
+  .links a:hover{filter:brightness(1.08)}
+  input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+  .legend{font-size:13px;color:var(--muted);margin-top:-6px}
+  @media (max-width:640px){.row{grid-template-columns:24px 1fr;}.n{display:none}.links{grid-column:1/-1;justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Classics — Audiobook Finder</h1>
+  <p class="sub">One click per book opens a YouTube search for a full audiobook. Tick the box once you've found one. Books marked <b>public domain</b> also link to LibriVox, which has free, legitimate volunteer recordings.</p>
+  <p class="legend"><span class="tag pd">public domain</span> free to upload legally (US) &nbsp; <span class="tag cr">in copyright</span> full uploads on YouTube are often unauthorized and get taken down</p>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Filter by title or author…">
+    <select id="f">
+      <option value="all">All books</option>
+      <option value="pd">Public domain only</option>
+      <option value="cr">In copyright only</option>
+      <option value="todo">Not yet found</option>
+      <option value="done">Found</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+const S=[
+["Ancient and Foundational Literature",[
+[1,"The Epic of Gilgamesh","Anonymous",1],[2,"The Iliad","Homer",1],[3,"The Odyssey","Homer",1],[4,"The Republic","Plato",1],[5,"The Art of War","Sun Tzu",1],[6,"The Aeneid","Virgil",1],[7,"Metamorphoses","Ovid",1],[8,"Meditations","Marcus Aurelius",1],[9,"The Confessions","Augustine",1],[10,"The Divine Comedy","Dante Alighieri",1]]],
+["Renaissance and Enlightenment Classics",[
+[11,"The Canterbury Tales","Geoffrey Chaucer",1],[12,"The Prince","Niccolò Machiavelli",1],[13,"Utopia","Thomas More",1],[14,"Don Quixote","Miguel de Cervantes",1],[15,"Hamlet","William Shakespeare",1],[16,"Paradise Lost","John Milton",1],[17,"Robinson Crusoe","Daniel Defoe",1],[18,"Gulliver's Travels","Jonathan Swift",1],[19,"Candide","Voltaire",1],[20,"The Sorrows of Young Werther","Johann Wolfgang von Goethe",1]]],
+["Nineteenth-Century British and European Literature",[
+[21,"Pride and Prejudice","Jane Austen",1],[22,"Frankenstein","Mary Shelley",1],[23,"The Red and the Black","Stendhal",1],[24,"The Count of Monte Cristo","Alexandre Dumas",1],[25,"Jane Eyre","Charlotte Brontë",1],[26,"Wuthering Heights","Emily Brontë",1],[27,"David Copperfield","Charles Dickens",1],[28,"Madame Bovary","Gustave Flaubert",1],[29,"Great Expectations","Charles Dickens",1],[30,"Les Misérables","Victor Hugo",1],[31,"Crime and Punishment","Fyodor Dostoevsky",1],[32,"War and Peace","Leo Tolstoy",1],[33,"Middlemarch","George Eliot",1],[34,"Anna Karenina","Leo Tolstoy",1],[35,"The Brothers Karamazov","Fyodor Dostoevsky",1],[36,"The Picture of Dorian Gray","Oscar Wilde",1],[37,"The Time Machine","H. G. Wells",1],[38,"Dracula","Bram Stoker",1],[39,"Heart of Darkness","Joseph Conrad",1],[40,"The War of the Worlds","H. G. Wells",1]]],
+["American Classics",[
+[41,"The Last of the Mohicans","James Fenimore Cooper",1],[42,"The Scarlet Letter","Nathaniel Hawthorne",1],[43,"Moby-Dick","Herman Melville",1],[44,"Walden","Henry David Thoreau",1],[45,"Adventures of Huckleberry Finn","Mark Twain",1],[46,"The Call of the Wild","Jack London",1],[47,"The Great Gatsby","F. Scott Fitzgerald",1],[48,"The Sun Also Rises","Ernest Hemingway",1],[49,"The Sound and the Fury","William Faulkner",1],[50,"Of Mice and Men","John Steinbeck",0],[51,"The Grapes of Wrath","John Steinbeck",0],[52,"For Whom the Bell Tolls","Ernest Hemingway",0],[53,"Native Son","Richard Wright",0],[54,"The Catcher in the Rye","J. D. Salinger",0],[55,"Invisible Man","Ralph Ellison",0],[56,"The Old Man and the Sea","Ernest Hemingway",0],[57,"East of Eden","John Steinbeck",0],[58,"To Kill a Mockingbird","Harper Lee",0],[59,"Catch-22","Joseph Heller",0],[60,"Slaughterhouse-Five","Kurt Vonnegut",0]]],
+["Twentieth-Century European and International Classics",[
+[61,"The Metamorphosis","Franz Kafka",1],[62,"Ulysses","James Joyce",1],[63,"Siddhartha","Hermann Hesse",1],[64,"The Trial","Franz Kafka",1],[65,"Mrs Dalloway","Virginia Woolf",1],[66,"The Magic Mountain","Thomas Mann",1],[67,"The Stranger","Albert Camus",0],[68,"The Plague","Albert Camus",0],[69,"Waiting for Godot","Samuel Beckett",0],[70,"Lord of the Flies","William Golding",0],[71,"Lolita","Vladimir Nabokov",0],[72,"Things Fall Apart","Chinua Achebe",0],[73,"One Hundred Years of Solitude","Gabriel García Márquez",0],[74,"The Master and Margarita","Mikhail Bulgakov",0],[75,"The Name of the Rose","Umberto Eco",0]]],
+["Science Fiction, Dystopia, and Speculative Classics",[
+[76,"We","Yevgeny Zamyatin",1],[77,"Brave New World","Aldous Huxley",0],[78,"Animal Farm","George Orwell",0],[79,"Nineteen Eighty-Four","George Orwell",0],[80,"The Martian Chronicles","Ray Bradbury",0],[81,"Foundation","Isaac Asimov",0],[82,"Fahrenheit 451","Ray Bradbury",0],[83,"The Lord of the Rings","J. R. R. Tolkien",0],[84,"The Stars My Destination","Alfred Bester",0],[85,"A Canticle for Leibowitz","Walter M. Miller Jr.",0],[86,"Stranger in a Strange Land","Robert A. Heinlein",0],[87,"Dune","Frank Herbert",0],[88,"The Left Hand of Darkness","Ursula K. Le Guin",0],[89,"Roadside Picnic","Arkady and Boris Strugatsky",0],[90,"Do Androids Dream of Electric Sheep?","Philip K. Dick",0]]],
+["Philosophy, Politics, and Human Nature",[
+[91,"Leviathan","Thomas Hobbes",1],[92,"Two Treatises of Government","John Locke",1],[93,"The Social Contract","Jean-Jacques Rousseau",1],[94,"The Wealth of Nations","Adam Smith",1],[95,"Critique of Pure Reason","Immanuel Kant",1],[96,"Democracy in America","Alexis de Tocqueville",1],[97,"On Liberty","John Stuart Mill",1],[98,"Beyond Good and Evil","Friedrich Nietzsche",1],[99,"The Protestant Ethic and the Spirit of Capitalism","Max Weber",1],[100,"The Origins of Totalitarianism","Hannah Arendt",0]]]
+];
+let done={};try{done=JSON.parse(localStorage.getItem("classics-found")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("classics-found",JSON.stringify(done))}catch(e){}};
+const enc=encodeURIComponent;
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+  const q=document.getElementById("q").value.trim().toLowerCase(), f=document.getElementById("f").value;
+  let html="",shown=0,found=0;
+  for(const [sec,books] of S){
+    let rows="";
+    for(const [n,t,a,pd] of books){
+      if(done[n])found++;
+      if(q && !(t+" "+a).toLowerCase().includes(q))continue;
+      if(f==="pd"&&!pd||f==="cr"&&pd||f==="todo"&&done[n]||f==="done"&&!done[n])continue;
+      shown++;
+      const auth=a==="Anonymous"?"":" "+a;
+      const yt="https://www.youtube.com/results?search_query="+enc(t+auth+" full audiobook");
+      const lv="https://librivox.org/search?q="+enc(t)+"&search_form=advanced";
+      rows+=`<div class="row${done[n]?" done":""}">
+        <input type="checkbox" data-n="${n}" ${done[n]?"checked":""} aria-label="Found ${esc(t)}">
+        <span class="n">${n}</span>
+        <div><span class="t">${esc(t)}</span><span class="tag ${pd?"pd":"cr"}">${pd?"public domain":"in copyright"}</span><div class="a">${esc(a)}</div></div>
+        <div class="links"><a class="yt" href="${yt}" target="_blank" rel="noopener">YouTube</a>${pd?`<a href="${lv}" target="_blank" rel="noopener">LibriVox</a>`:""}</div>
+      </div>`;
+    }
+    if(rows)html+=`<h2>${esc(sec)}</h2>`+rows;
+  }
+  document.getElementById("list").innerHTML=html||"<p class='sub'>No books match.</p>";
+  document.getElementById("count").textContent=`${shown} shown · ${found}/100 found`;
+}
+document.getElementById("list").addEventListener("change",e=>{const n=e.target.dataset.n;if(!n)return;if(e.target.checked)done[n]=1;else delete done[n];save();render();});
+document.getElementById("q").addEventListener("input",render);
+document.getElementById("f").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
